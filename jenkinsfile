@@ -1,0 +1,41 @@
+pipeline {
+agent any
+tools{
+maven 'mymaven'
+}
+stages {
+stage('cleanws') {
+steps {
+cleanWs()
+}
+}
+stage('code'){
+steps{
+git 'https://github.com/Manojnalla-gh/dockerwebapp.git'
+}
+}
+stage('maven'){
+steps{
+sh'mvn clean package'
+sh 'cp -r target Docker-app'
+}
+}
+stage('build'){
+steps{
+sh 'docker build -t image1 Docker-app'
+sh 'docker build -t image2 Docker-db'
+}
+}
+stage('scan'){
+steps{
+sh'trivy image image1'
+sh'trivy image image2'
+}
+}
+stage('deploy'){
+steps{
+sh 'docker-compose up -d'
+}
+}
+}
+}
